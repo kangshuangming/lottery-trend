@@ -198,9 +198,10 @@ def api_latest_issue(lottery_type):
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5088))
     # 启动时预加载数据
     print("正在预加载数据...")
     get_data("ssq")
     get_data("dlt")
-    print("数据加载完成，启动服务: http://localhost:5088")
-    app.run(host="0.0.0.0", port=5088, debug=False)
+    print(f"数据加载完成，启动服务: http://0.0.0.0:{port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
