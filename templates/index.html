@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>彩票走势分析系统</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card-hover: #222633;
+  --border: #2d3142;
+  --text: #e4e7ec;
+  --text-dim: #8b90a0;
+  --accent: #6c8cff;
+  --accent-dim: #3a4f8a;
+  --red: #ff5b6e;
+  --blue: #4a9eff;
+  --green: #4ade80;
+  --orange: #fbbf24;
+  --purple: #a78bfa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; min-height:100vh; }
+
+/* Top Bar */
+.topbar { background:var(--card); border-bottom:1px solid var(--border); padding:12px 24px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; }
+.topbar h1 { font-size:18px; white-space:nowrap; }
+.topbar h1 span { color:var(--accent); }
+.toggle-group { display:flex; gap:4px; background:var(--bg); border-radius:8px; padding:3px; }
+.toggle-btn { padding:6px 16px; border:none; background:transparent; color:var(--text-dim); border-radius:6px; cursor:pointer; font-size:14px; transition:all .2s; }
+.toggle-btn.active { background:var(--accent); color:#fff; }
+.topbar-right { margin-left:auto; display:flex; gap:8px; align-items:center; }
+.btn { padding:6px 14px; border:1px solid var(--border); background:var(--card); color:var(--text); border-radius:6px; cursor:pointer; font-size:13px; transition:all .15s; }
+.btn:hover { background:var(--card-hover); border-color:var(--accent); }
+.btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.btn-primary:hover { background:var(--accent-dim); }
+.btn-success { background:rgba(74,222,128,.15); border-color:rgba(74,222,128,.3); color:var(--green); }
+.btn-success:hover { background:rgba(74,222,128,.25); }
+.btn-danger { background:rgba(255,91,110,.15); border-color:rgba(255,91,110,.3); color:var(--red); }
+.btn-danger:hover { background:rgba(255,91,110,.25); }
+.btn-sm { padding:4px 10px; font-size:12px; }
+
+/* Tabs */
+.tabs { display:flex; gap:2px; padding:0 24px; background:var(--card); border-bottom:1px solid var(--border); overflow-x:auto; }
+.tab { padding:10px 20px; color:var(--text-dim); cursor:pointer; font-size:14px; border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap; }
+.tab:hover { color:var(--text); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* Content */
+.content { padding:20px 24px; max-width:1400px; margin:0 auto; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* Cards */
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+.card-title { font-size:15px; font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.card-title .badge { font-size:11px; padding:2px 8px; border-radius:10px; background:var(--accent-dim); color:var(--accent); }
+
+/* Grid */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+@media(max-width:900px){ .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr; } }
+
+/* Stat box */
+.stat-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+.stat-box .label { font-size:12px; color:var(--text-dim); margin-bottom:4px; }
+.stat-box .value { font-size:22px; font-weight:700; color:var(--accent); }
+.stat-box .value.win { color:var(--green); }
+.stat-box .value.loss { color:var(--red); }
+.stat-box .sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
+.stats-row { display:flex; flex-wrap:nowrap; gap:12px; margin-bottom:16px; }
+.stats-row .stat-box { flex:1 1 0; min-width:0; padding:12px 8px; }
+.stats-row .stat-box .value { font-size:18px; }
+
+/* Ball */
+.ball { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; font-size:13px; font-weight:700; margin:2px; }
+.ball-red { background:var(--red); color:#fff; }
+.ball-blue { background:var(--blue); color:#fff; }
+.ball-sm { width:24px; height:24px; font-size:11px; }
+.ball-xs { width:20px; height:20px; font-size:10px; }
+.ball-win { box-shadow:0 0 0 2px var(--green); }
+
+/* Table */
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; padding:8px 10px; color:var(--text-dim); border-bottom:1px solid var(--border); font-weight:500; white-space:nowrap; }
+td { padding:8px 10px; border-bottom:1px solid var(--border); }
+tr:hover td { background:var(--card-hover); }
+
+/* Frequency bar */
+.freq-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+freq-num { min-width:28px; text-align:center; font-weight:600; font-size:13px; }
+.freq-bar { flex:1; height:18px; background:var(--bg); border-radius:4px; overflow:hidden; position:relative; }
+.freq-fill { height:100%; border-radius:4px; transition:width .5s; }
+.freq-count { min-width:30px; text-align:right; font-size:12px; color:var(--text-dim); }
+
+/* Heat map cell */
+.heat-cell { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:6px; font-size:12px; font-weight:600; margin:2px; cursor:default; transition:transform .15s; }
+.heat-cell:hover { transform:scale(1.15); }
+.heat-0 { background:#1a1d27; color:#444; }
+.heat-1 { background:#2a2d3a; color:#666; }
+.heat-2 { background:#3a3d4a; color:#888; }
+.heat-3 { background:#4a5d6a; color:#aaa; }
+.heat-4 { background:#5a7d8a; color:#ccc; }
+.heat-5 { background:#6c8cff; color:#fff; }
+.heat-6 { background:#4a9eff; color:#fff; }
+
+/* Combo card */
+.combo-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px; transition:border-color .2s; }
+.combo-card:hover { border-color:var(--accent); }
+.combo-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.combo-strategy { font-size:12px; padding:2px 10px; border-radius:10px; }
+.strat-hot { background:rgba(255,91,110,.15); color:var(--red); }
+.strat-cold { background:rgba(74,158,255,.15); color:var(--blue); }
+.strat-missing { background:rgba(251,191,36,.15); color:var(--orange); }
+.strat-balanced { background:rgba(74,222,128,.15); color:var(--green); }
+.strat-smart { background:rgba(167,139,250,.15); color:var(--purple); }
+.combo-score { font-size:13px; font-weight:700; }
+.score-high { color:var(--green); }
+.score-mid { color:var(--orange); }
+.score-low { color:var(--red); }
+.combo-balls { display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:8px; }
+.combo-stats { display:flex; gap:12px; font-size:12px; color:var(--text-dim); flex-wrap:wrap; }
+.combo-stat { display:flex; align-items:center; gap:4px; }
+.combo-reasons { margin-top:8px; font-size:11px; color:var(--orange); }
+
+/* Purchase card */
+.purchase-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; }
+.purchase-card:hover { border-color:var(--accent); }
+.purchase-card.pending { border-left:3px solid var(--orange); }
+.purchase-card.win { border-left:3px solid var(--green); }
+.purchase-card.loss { border-left:3px solid var(--red); }
+.purchase-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.purchase-info { display:flex; gap:12px; font-size:12px; color:var(--text-dim); }
+.purchase-status { font-size:11px; padding:2px 8px; border-radius:10px; }
+.status-pending { background:rgba(251,191,36,.15); color:var(--orange); }
+.status-win { background:rgba(74,222,128,.15); color:var(--green); }
+.status-loss { background:rgba(255,91,110,.15); color:var(--red); }
+.purchase-result { margin-top:10px; padding:10px; background:var(--bg); border-radius:8px; font-size:13px; }
+
+/* Selectors */
+.select-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+.select-row label { font-size:13px; color:var(--text-dim); }
+select, input[type=number], input[type=text] { background:var(--bg); border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:6px; font-size:13px; }
+
+/* Loading */
+.loading { text-align:center; padding:40px; color:var(--text-dim); }
+.spinner { display:inline-block; width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Scroll table */
+.scroll-table { max-height:500px; overflow-y:auto; border-radius:8px; }
+.scroll-table::-webkit-scrollbar { width:6px; }
+.scroll-table::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* Chart container */
+.chart-box { position:relative; height:300px; }
+.chart-box-sm { position:relative; height:200px; }
+
+/* Tooltip */
+.info-tip { display:inline-block; width:16px; height:16px; border-radius:50%; background:var(--border); color:var(--text-dim); font-size:10px; text-align:center; line-height:16px; cursor:help; }
+
+/* Empty state */
+.empty-state { text-align:center; padding:40px; color:var(--text-dim); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>彩票走势分析 <span>Pro</span></h1>
+  <div class="toggle-group">
+    <button class="toggle-btn active" onclick="switchLottery('ssq', this)">双色球</button>
+    <button class="toggle-btn" onclick="switchLottery('dlt', this)">大乐透</button>
+  </div>
+  <div class="topbar-right">
+    <select id="periodsSelect" onchange="loadData()">
+      <option value="30">近30期</option>
+      <option value="50" selected>近50期</option>
+      <option value="100">近100期</option>
+      <option value="200">近200期</option>
+    </select>
+    <button class="btn" onclick="refreshData()">刷新数据</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview', this)">概览</div>
+  <div class="tab" onclick="switchTab('frequency', this)">频率分析</div>
+  <div class="tab" onclick="switchTab('missing', this)">遗漏分析</div>
+  <div class="tab" onclick="switchTab('trend', this)">走势图</div>
+  <div class="tab" onclick="switchTab('history', this)">开奖记录</div>
+  <div class="tab" onclick="switchTab('select', this)">智能选号</div>
+  <div class="tab" onclick="switchTab('purchases', this)">已购号码 <span id="purchaseTabBadge" class="badge" style="display:none">0</span></div>
+</div>
+
+<div class="content">
+
+<!-- Overview Panel -->
+<div class="panel active" id="panel-overview">
+  <div class="stats-row" id="statGrid"></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">近20期和值走势</div>
+      <div class="chart-box"><canvas id="sumChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">近20期跨度走势</div>
+      <div class="chart-box"><canvas id="spanChart"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">奇偶比分布</div>
+      <div class="chart-box-sm"><canvas id="oddEvenChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">大小比分布</div>
+      <div class="chart-box-sm"><canvas id="bigSmallChart"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">冷热号分布 <span class="badge" id="hotColdBadge"></span></div>
+    <div id="hotColdView"></div>
+  </div>
+</div>
+
+<!-- Frequency Panel -->
+<div class="panel" id="panel-frequency">
+  <div class="card">
+    <div class="card-title">红球频率 <span class="badge">柱状图</span></div>
+    <div class="chart-box"><canvas id="freqRedChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">蓝球频率 <span class="badge">柱状图</span></div>
+    <div class="chart-box"><canvas id="freqBlueChart"></canvas></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">红球频率排行</div>
+      <div class="scroll-table" id="freqRedTable" style="max-height:400px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">蓝球频率排行</div>
+      <div class="scroll-table" id="freqBlueTable" style="max-height:400px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Missing Panel -->
+<div class="panel" id="panel-missing">
+  <div class="card">
+    <div class="card-title">红球遗漏值 <span class="badge">当前遗漏期数</span></div>
+    <div class="chart-box"><canvas id="missRedChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">蓝球遗漏值</div>
+    <div class="chart-box"><canvas id="missBlueChart"></canvas></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">红球遗漏排行 <span class="badge">遗漏/均值比</span></div>
+      <div class="scroll-table" id="missRedTable" style="max-height:400px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">蓝球遗漏排行</div>
+      <div class="scroll-table" id="missBlueTable" style="max-height:400px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Trend Panel -->
+<div class="panel" id="panel-trend">
+  <div class="card">
+    <div class="card-title">号码走势热力图 <span class="badge">近30期</span></div>
+    <div id="trendHeatmap"></div>
+  </div>
+</div>
+
+<!-- History Panel -->
+<div class="panel" id="panel-history">
+  <div class="card">
+    <div class="card-title">最近开奖记录</div>
+    <div class="scroll-table">
+      <table id="historyTable"></table>
+    </div>
+  </div>
+</div>
+
+<!-- Select Panel -->
+<div class="panel" id="panel-select">
+  <div class="card">
+    <div class="card-title">智能选号 <span class="badge">基于走势分析</span></div>
+    <div id="drawScheduleHint" style="margin-bottom:12px"></div>
+    <div class="select-row">
+      <label>策略:</label>
+      <select id="strategySelect">
+        <option value="mixed" selected>混合策略(推荐)</option>
+        <option value="hot">热号追势</option>
+        <option value="cold">冷号回补</option>
+        <option value="missing">遗漏回补</option>
+        <option value="balanced">均衡组合</option>
+        <option value="smart">智能评分</option>
+      </select>
+      <label>注数:</label>
+      <select id="comboCount">
+        <option value="1">1注</option>
+        <option value="3">3注</option>
+        <option value="5" selected>5注</option>
+        <option value="10">10注</option>
+      </select>
+      <label>过滤:</label>
+      <select id="filterSelect">
+        <option value="1" selected>启用过滤</option>
+        <option value="0">不过滤</option>
+      </select>
+      <label>购买期号:</label>
+      <input type="text" id="purchaseIssue" placeholder="自动获取" style="width:80px">
+      <button class="btn btn-primary" onclick="generateCombos()">生成选号</button>
+    </div>
+    <div id="comboResults"></div>
+  </div>
+</div>
+
+<!-- Purchases Panel -->
+<div class="panel" id="panel-purchases">
+  <!-- Manual add form -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title" style="cursor:pointer" onclick="toggleManualForm()">
+      <span id="manualFormToggle">+ 手动录入已购号码</span>
+    </div>
+    <div id="manualAddForm" style="display:none">
+      <div class="select-row">
+        <label>彩种:</label>
+        <select id="manualLotteryType" onchange="updateManualInputHints()">
+          <option value="ssq">双色球</option>
+          <option value="dlt">大乐透</option>
+        </select>
+        <label>期号:</label>
+        <input type="text" id="manualIssue" placeholder="26078" style="width:80px">
+        <label id="manualRedLabel">红球:</label>
+        <input type="text" id="manualRed" placeholder="01,02,03,04,05,06" style="width:180px">
+        <label id="manualBlueLabel">蓝球:</label>
+        <input type="text" id="manualBlue" placeholder="07" style="width:90px">
+        <button class="btn btn-primary" onclick="manualAddPurchase()">添加</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:4px">
+        号码可用空格、逗号（, ，）或句号（. 。）分隔，双色球为 6+1 格式，大乐透为 5+2 格式。
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">已购买号码库 <span class="badge">自动追踪中奖</span></div>
+    <div id="purchaseDrawHint" style="margin-bottom:12px"></div>
+    <div class="select-row">
+      <label>彩种:</label>
+      <select id="purchaseFilterType" onchange="loadPurchases()">
+        <option value="">全部</option>
+        <option value="ssq">双色球</option>
+        <option value="dlt">大乐透</option>
+      </select>
+      <label>状态:</label>
+      <select id="purchaseFilterStatus" onchange="loadPurchases()">
+        <option value="">全部</option>
+        <option value="pending">待开奖</option>
+        <option value="checked">已开奖</option>
+      </select>
+      <button class="btn btn-success" onclick="checkAllPurchases(this)">批量开奖对比</button>
+      <button class="btn" onclick="loadSuggestions()">生成改进建议</button>
+    </div>
+    <div class="stats-row" id="purchaseSummary"></div>
+    <div id="suggestionsBox"></div>
+    <div id="purchaseList"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let currentLottery = 'ssq';
+let currentTab = 'overview';
+let analysisData = null;
+let chartInstances = {};
+let currentCombos = [];
+let suggestedIssue = '';
+let suggestedIssues = {ssq: '', dlt: ''}; // 手动录入用，按彩种缓存建议期号
+let purchasedComboIds = {}; // {comboIndex: purchaseId} 跟踪选号页已购买的组合
+let drawScheduleInfo = null; // 开奖时间表信息
+
+const API = '/api';
+
+async function fetchJSON(url, options) {
+  const resp = await fetch(url, options);
+  return resp.json();
+}
+
+function switchLottery(type, el) {
+  currentLottery = type;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  loadData();
+  if (currentTab === 'select') {
+    updateSuggestedIssue();
+  }
+  if (currentTab === 'select' && currentCombos.length > 0) {
+    // 切换彩种时重新生成
+    purchasedComboIds = {};
+    currentCombos = [];
+    document.getElementById('comboResults').innerHTML = '';
+  }
+}
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  // 懒加载tab内容
+  if (tab === 'frequency' && analysisData) renderFrequency();
+  if (tab === 'missing' && analysisData) renderMissing();
+  if (tab === 'trend' && analysisData) renderTrend();
+  if (tab === 'history') loadHistory();
+  if (tab === 'purchases') loadPurchases();
+  if (tab === 'select') updateSuggestedIssue();
+}
+
+async function loadData() {
+  const periods = document.getElementById('periodsSelect').value;
+  const url = `${API}/analysis/${currentLottery}?periods=${periods}`;
+  
+  // 显示加载
+  document.getElementById('statGrid').innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
+
+  try {
+    analysisData = await fetchJSON(url);
+    renderOverview();
+    if (currentTab === 'frequency') renderFrequency();
+    if (currentTab === 'missing') renderMissing();
+    if (currentTab === 'trend') renderTrend();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('statGrid').innerHTML = '<div class="loading"><p>加载失败，请刷新数据</p></div>';
+  }
+}
+
+async function refreshData() {
+  const periods = document.getElementById('periodsSelect').value;
+  await fetch(`${API}/analysis/${currentLottery}?periods=${periods}&refresh=1`);
+  loadData();
+}
+
+async function updateSuggestedIssue() {
+  try {
+    const info = await fetchJSON(`${API}/latest-issue/${currentLottery}`);
+    suggestedIssue = info.suggested_issue;
+    suggestedIssues[currentLottery] = info.suggested_issue;
+    document.getElementById('purchaseIssue').placeholder = suggestedIssue;
+    drawScheduleInfo = info;
+    // 更新选号页的开奖提示
+    const hintEl = document.getElementById('drawScheduleHint');
+    if (hintEl && info.draw_schedule) {
+      const nextStr = info.next_draw_time ? `下次开奖: ${info.next_draw_time}` : '';
+      hintEl.innerHTML = `<span style="color:var(--orange);font-size:12px">📊 ${info.draw_schedule.days} ${info.draw_schedule.time}开奖 · 建议${currentLottery==='ssq'?'红球':'前区'}+${currentLottery==='ssq'?'蓝球':'后区'} | ${nextStr}</span>`;
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function renderOverview() {
+  const d = analysisData;
+  const isSSQ = currentLottery === 'ssq';
+  const redLabel = isSSQ ? '红球' : '前区';
+  const blueLabel = isSSQ ? '蓝球' : '后区';
+
+  // Stat grid
+  const grid = document.getElementById('statGrid');
+  grid.innerHTML = `
+    <div class="stat-box"><div class="label">分析期数</div><div class="value">${d.total_periods}</div><div class="sub">最近${d.analysis_periods}期统计</div></div>
+    <div class="stat-box"><div class="label">${redLabel}和值均值</div><div class="value">${d.sum.avg}</div><div class="sub">范围 ${d.sum.min}-${d.sum.max}</div></div>
+    <div class="stat-box"><div class="label">${redLabel}跨度均值</div><div class="value">${d.span.avg}</div><div class="sub">范围 ${d.span.min}-${d.span.max}</div></div>
+    <div class="stat-box"><div class="label">平均重号</div><div class="value">${d.repeat.avg}</div><div class="sub">上期 ${d.repeat.last} 个</div></div>
+  `;
+
+  // Sum chart
+  renderLineChart('sumChart', d.sum.values.slice(0,20).reverse(), '和值', '#6c8cff');
+  // Span chart
+  renderLineChart('spanChart', d.span.values.slice(0,20).reverse(), '跨度', '#4ade80');
+  // Odd/Even pie
+  renderDistChart('oddEvenChart', d.odd_even.distribution, '奇偶比');
+  // Big/Small pie
+  renderDistChart('bigSmallChart', d.big_small.distribution, '大小比');
+
+  // Hot/cold
+  const hc = d.hot_cold;
+  document.getElementById('hotColdBadge').textContent = `热${hc.hot_count} 温${hc.warm_count} 冷${hc.cold_count}`;
+  const hcView = document.getElementById('hotColdView');
+  let html = '<div style="margin-bottom:10px"><span style="color:#ff5b6e;font-weight:600">热号</span>: ';
+  hc.hot.forEach(n => html += `<span class="ball ball-red ball-sm">${n}</span>`);
+  html += '</div><div style="margin-bottom:10px"><span style="color:#fbbf24;font-weight:600">温号</span>: ';
+  hc.warm.forEach(n => html += `<span class="ball ball-sm" style="background:#3a3d4a">${n}</span>`);
+  html += '</div><div><span style="color:#4a9eff;font-weight:600">冷号</span>: ';
+  hc.cold.forEach(n => html += `<span class="ball ball-blue ball-sm">${n}</span>`);
+  html += '</div>';
+  hcView.innerHTML = html;
+}
+
+function renderLineChart(id, data, label, color) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  chartInstances[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels: data.map((_,i)=>i+1), datasets: [{ label, data, borderColor: color, backgroundColor: color+'20', fill:true, tension:0.3 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{color:'#2d3142'}},y:{grid:{color:'#2d3142'}}} }
+  });
+}
+
+function renderDistChart(id, dist, label) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  const labels = Object.keys(dist);
+  const values = Object.values(dist);
+  const colors = ['#6c8cff','#ff5b6e','#4ade80','#fbbf24','#a78bfa','#4a9eff','#ff8fa3','#8b90a0'];
+  chartInstances[id] = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors.slice(0,labels.length) }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right',labels:{font:{size:11}}}} }
+  });
+}
+
+function renderFrequency() {
+  const d = analysisData;
+  const isSSQ = currentLottery === 'ssq';
+  const redLabel = isSSQ ? '红球' : '前区';
+  const blueLabel = isSSQ ? '蓝球' : '后区';
+
+  // Red bar chart
+  if (chartInstances.freqRedChart) chartInstances.freqRedChart.destroy();
+  const ctx1 = document.getElementById('freqRedChart').getContext('2d');
+  const redLabels = d.frequency.red.map(r => r.num);
+  const redData = d.frequency.red.map(r => r.count);
+  chartInstances.freqRedChart = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels: redLabels, datasets: [{ label:'出现次数', data: redData, backgroundColor: redData.map(v => v > redData.reduce((a,b)=>a+b,0)/redData.length*1.3 ? '#ff5b6e' : '#3a4f8a') }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#2d3142'}}} }
+  });
+
+  // Blue bar chart
+  if (chartInstances.freqBlueChart) chartInstances.freqBlueChart.destroy();
+  const ctx2 = document.getElementById('freqBlueChart').getContext('2d');
+  const blueLabels = d.frequency.blue.map(r => r.num);
+  const blueData = d.frequency.blue.map(r => r.count);
+  chartInstances.freqBlueChart = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels: blueLabels, datasets: [{ label:'出现次数', data: blueData, backgroundColor: blueData.map(v => v > blueData.reduce((a,b)=>a+b,0)/blueData.length*1.3 ? '#4a9eff' : '#2a3f6a') }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}},y:{grid:{color:'#2d3142'}}} }
+  });
+
+  // Tables
+  const sortedRed = [...d.frequency.red].sort((a,b) => b.count - a.count);
+  const maxRed = Math.max(...redData, 1);
+  document.getElementById('freqRedTable').innerHTML = `
+    <table><thead><tr><th>号码</th><th>次数</th><th>占比</th><th>频率</th></tr></thead><tbody>
+    ${sortedRed.map(r => `<tr><td><span class="ball ball-red ball-xs">${r.num}</span></td><td>${r.count}</td><td>${r.pct}%</td><td><div class="freq-bar"><div class="freq-fill" style="width:${r.count/maxRed*100}%;background:#ff5b6e"></div></div></td></tr>`).join('')}
+    </tbody></table>`;
+
+  const sortedBlue = [...d.frequency.blue].sort((a,b) => b.count - a.count);
+  const maxBlue = Math.max(...blueData, 1);
+  document.getElementById('freqBlueTable').innerHTML = `
+    <table><thead><tr><th>号码</th><th>次数</th><th>占比</th><th>频率</th></tr></thead><tbody>
+    ${sortedBlue.map(r => `<tr><td><span class="ball ball-blue ball-xs">${r.num}</span></td><td>${r.count}</td><td>${r.pct}%</td><td><div class="freq-bar"><div class="freq-fill" style="width:${r.count/maxBlue*100}%;background:#4a9eff"></div></div></td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderMissing() {
+  const d = analysisData;
+  
+  if (chartInstances.missRedChart) chartInstances.missRedChart.destroy();
+  const ctx1 = document.getElementById('missRedChart').getContext('2d');
+  const redLabels = d.missing.red.map(r => r.num);
+  const redMissing = d.missing.red.map(r => r.missing);
+  const redAvg = d.missing.red.map(r => r.avg_gap);
+  chartInstances.missRedChart = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels: redLabels, datasets: [
+      { label:'当前遗漏', data: redMissing, backgroundColor: redMissing.map(v => v > redAvg.reduce((a,b)=>a+b,0)/redAvg.length*1.5 ? '#fbbf24' : '#3a4f8a') },
+      { label:'平均间隔', data: redAvg, type:'line', borderColor:'#ff5b6e', borderWidth:2, pointRadius:0 }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}},y:{grid:{color:'#2d3142'}}} }
+  });
+
+  if (chartInstances.missBlueChart) chartInstances.missBlueChart.destroy();
+  const ctx2 = document.getElementById('missBlueChart').getContext('2d');
+  const blueLabels = d.missing.blue.map(r => r.num);
+  const blueMissing = d.missing.blue.map(r => r.missing);
+  const blueAvg = d.missing.blue.map(r => r.avg_gap);
+  chartInstances.missBlueChart = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels: blueLabels, datasets: [
+      { label:'当前遗漏', data: blueMissing, backgroundColor: blueMissing.map(v => v > blueAvg.reduce((a,b)=>a+b,0)/blueAvg.length*1.5 ? '#fbbf24' : '#2a3f6a') },
+      { label:'平均间隔', data: blueAvg, type:'line', borderColor:'#4a9eff', borderWidth:2, pointRadius:0 }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, scales:{x:{grid:{display:false}},y:{grid:{color:'#2d3142'}}} }
+  });
+
+  // Tables sorted by ratio
+  const sortedRed = [...d.missing.red].sort((a,b) => b.ratio - a.ratio);
+  document.getElementById('missRedTable').innerHTML = `
+    <table><thead><tr><th>号码</th><th>遗漏</th><th>均间隔</th><th>比值</th><th>状态</th></tr></thead><tbody>
+    ${sortedRed.map(r => `<tr><td><span class="ball ball-red ball-xs">${r.num}</span></td><td>${r.missing}</td><td>${r.avg_gap}</td><td style="color:${r.ratio>1.5?'#fbbf24':'#8b90a0'}">${r.ratio}</td><td>${r.ratio>1.5?'<span style="color:#fbbf24">回补预警</span>':'正常'}</td></tr>`).join('')}
+    </tbody></table>`;
+
+  const sortedBlue = [...d.missing.blue].sort((a,b) => b.ratio - a.ratio);
+  document.getElementById('missBlueTable').innerHTML = `
+    <table><thead><tr><th>号码</th><th>遗漏</th><th>均间隔</th><th>比值</th><th>状态</th></tr></thead><tbody>
+    ${sortedBlue.map(r => `<tr><td><span class="ball ball-blue ball-xs">${r.num}</span></td><td>${r.missing}</td><td>${r.avg_gap}</td><td style="color:${r.ratio>1.5?'#fbbf24':'#8b90a0'}">${r.ratio}</td><td>${r.ratio>1.5?'<span style="color:#fbbf24">回补预警</span>':'正常'}</td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderTrend() {
+  const d = analysisData;
+  const trend = d.trend;
+  const isSSQ = currentLottery === 'ssq';
+  const redMax = isSSQ ? 33 : 35;
+  const blueMax = isSSQ ? 16 : 12;
+
+  let html = '<div style="overflow-x:auto"><table style="font-size:11px"><thead><tr><th>期号</th>';
+  for (let i = 1; i <= redMax; i++) html += `<th style="text-align:center;min-width:28px">${i}</th>`;
+  html += '<th>开奖号码</th></tr></thead><tbody>';
+  
+  trend.forEach(draw => {
+    const redSet = new Set(draw.red);
+    html += `<tr><td style="white-space:nowrap">${draw.issue}</td>`;
+    for (let i = 1; i <= redMax; i++) {
+      if (redSet.has(i)) {
+        html += `<td style="text-align:center"><span class="ball ball-red ball-xs">${i}</span></td>`;
+      } else {
+        html += `<td style="text-align:center;color:#333">·</td>`;
+      }
+    }
+    html += '<td>';
+    draw.red.forEach(n => html += `<span class="ball ball-red ball-xs">${n}</span>`);
+    draw.blue.forEach(n => html += `<span class="ball ball-blue ball-xs">${n}</span>`);
+    html += '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('trendHeatmap').innerHTML = html;
+}
+
+async function loadHistory() {
+  const data = await fetchJSON(`${API}/data/${currentLottery}?count=50`);
+  const isSSQ = currentLottery === 'ssq';
+  const table = document.getElementById('historyTable');
+  let html = `<thead><tr><th>期号</th><th>开奖日期</th><th>红球</th><th>蓝球</th><th>和值</th><th>跨度</th><th>奇偶</th><th>AC值</th></tr></thead><tbody>`;
+  data.data.forEach(d => {
+    const red = d.red || d.front;
+    const blue = d.blue !== undefined ? (Array.isArray(d.blue) ? d.blue : [d.blue]) : d.back;
+    const s = red.reduce((a,b)=>a+b,0);
+    const span = Math.max(...red) - Math.min(...red);
+    const odd = red.filter(n=>n%2===1).length;
+    const diffs = new Set();
+    for(let i=0;i<red.length;i++) for(let j=i+1;j<red.length;j++) diffs.add(red[j]-red[i]);
+    const ac = diffs.size - (red.length-1);
+    html += `<tr><td>${d.issue}</td><td>${d.date}</td><td>${red.map(n=>`<span class="ball ball-red ball-xs">${n}</span>`).join('')}</td><td>${blue.map(n=>`<span class="ball ball-blue ball-xs">${n}</span>`).join('')}</td><td>${s}</td><td>${span}</td><td>${odd}:${red.length-odd}</td><td>${ac}</td></tr>`;
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+async function generateCombos() {
+  const strategy = document.getElementById('strategySelect').value;
+  const count = document.getElementById('comboCount').value;
+  const filter = document.getElementById('filterSelect').value;
+  const periods = document.getElementById('periodsSelect').value;
+  
+  // 重置已购买标记
+  purchasedComboIds = {};
+  
+  const btn = document.querySelector('.btn-primary[onclick*="generateCombos"]');
+  if (btn) {
+    btn.textContent = '选号中...';
+    btn.disabled = true;
+  }
+  
+  document.getElementById('comboResults').innerHTML = '<div class="loading"><div class="spinner"></div><p>选号中...</p></div>';
+  
+  try {
+    const data = await fetchJSON(`${API}/select/${currentLottery}?strategy=${strategy}&count=${count}&filter=${filter}&periods=${periods}`);
+    currentCombos = data.combos || [];
+    renderCombos(data.combos || []);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('comboResults').innerHTML = '<div class="loading"><p>选号失败，请重试</p></div>';
+  } finally {
+    if (btn) {
+      btn.textContent = '生成选号';
+      btn.disabled = false;
+    }
+  }
+}
+
+function renderCombos(combos) {
+  const isSSQ = currentLottery === 'ssq';
+  const redLabel = isSSQ ? '红球' : '前区';
+  const blueLabel = isSSQ ? '蓝球' : '后区';
+  
+  const stratLabels = {hot:'热号追势',cold:'冷号回补',missing:'遗漏回补',balanced:'均衡组合',smart:'智能评分'};
+  const stratClass = {hot:'strat-hot',cold:'strat-cold',missing:'strat-missing',balanced:'strat-balanced',smart:'strat-smart'};
+  
+  if (combos.length === 0) {
+    document.getElementById('comboResults').innerHTML = '<div class="loading"><p>未生成有效组合，请调整策略或点击「生成选号」重试</p></div>';
+    return;
+  }
+  
+  let html = '<div style="margin-bottom:10px;font-size:12px;color:var(--text-dim)">💡 点击「已购买」标记号码到已购库，再次点击「取消已购买」可撤回 · 可随时点击「生成选号」重新生成</div>';
+  combos.forEach((c, i) => {
+    const scoreClass = c.score >= 90 ? 'score-high' : c.score >= 70 ? 'score-mid' : 'score-low';
+    const blue = Array.isArray(c.blue) ? c.blue : [c.blue];
+    const isPurchased = purchasedComboIds[i] !== undefined;
+    const purchaseBtnClass = isPurchased ? 'btn-danger' : 'btn-success';
+    const purchaseBtnText = isPurchased ? '取消已购买' : '已购买';
+    html += `<div class="combo-card" id="combo-${i}">
+      <div class="combo-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;font-weight:700">第${i+1}注</span>
+          <span class="combo-strategy ${stratClass[c.strategy]||'strat-smart'}">${stratLabels[c.strategy]||c.strategy}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="combo-score ${scoreClass}">${c.score}分</span>
+          <button class="btn ${purchaseBtnClass} btn-sm btn-purchase" onclick="purchaseCombo(${i})">${purchaseBtnText}</button>
+        </div>
+      </div>
+      <div class="combo-balls">
+        <span style="color:var(--text-dim);font-size:12px;margin-right:4px">${redLabel}:</span>
+        ${c.red.map(n => `<span class="ball ball-red">${n}</span>`).join('')}
+        <span style="color:var(--text-dim);font-size:12px;margin:0 4px 0 8px">${blueLabel}:</span>
+        ${blue.map(n => `<span class="ball ball-blue">${n}</span>`).join('')}
+      </div>
+      <div class="combo-stats">
+        <span class="combo-stat">和值: <b>${c.stats.sum}</b></span>
+        <span class="combo-stat">跨度: <b>${c.stats.span}</b></span>
+        <span class="combo-stat">奇偶: <b>${c.stats.odd_even}</b></span>
+        <span class="combo-stat">连号: <b>${c.stats.consecutive}组</b></span>
+        <span class="combo-stat">AC值: <b>${c.stats.ac}</b></span>
+      </div>
+      ${c.reasons && c.reasons.length > 0 ? `<div class="combo-reasons">${c.reasons.join(' · ')}</div>` : ''}
+    </div>`;
+  });
+  document.getElementById('comboResults').innerHTML = html;
+}
+
+async function purchaseCombo(index) {
+  const c = currentCombos[index];
+  if (!c) return;
+
+  // 如果已购买，则取消（删除已购记录）
+  if (purchasedComboIds[index]) {
+    const purchaseId = purchasedComboIds[index];
+    const btn = document.querySelector(`#combo-${index} .btn-purchase`);
+    if (btn) { btn.textContent = '取消中...'; btn.disabled = true; }
+    try {
+      const resp = await fetch(`${API}/purchase/${purchaseId}`, {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'},
+      });
+      const res = await resp.json();
+      if (res.success) {
+        delete purchasedComboIds[index];
+        updatePurchaseButton(index, false);
+        updatePurchaseBadge();
+        showToast('已取消购买', 'info');
+      } else {
+        showToast('取消失败', 'error');
+        if (btn) { btn.textContent = '取消已购买'; btn.disabled = false; }
+      }
+    } catch(e) {
+      console.error(e);
+      showToast('取消失败，请重试', 'error');
+      if (btn) { btn.textContent = '取消已购买'; btn.disabled = false; }
+    }
+    return;
+  }
+
+  // 标记为已购买
+  let issueInput = document.getElementById('purchaseIssue').value.trim();
+  if (!issueInput) issueInput = suggestedIssue || '';
+  if (!issueInput) {
+    showToast('请先填写购买期号', 'error');
+    return;
+  }
+
+  const btn = document.querySelector(`#combo-${index} .btn-purchase`);
+  if (btn) { btn.textContent = '保存中...'; btn.disabled = true; }
+
+  const payload = {
+    lottery_type: currentLottery,
+    issue: issueInput,
+    red: c.red,
+    blue: c.blue,
+    strategy: c.strategy,
+    source: 'selector',
+    cost: 2.0,
+  };
+
+  try {
+    const resp = await fetch(`${API}/purchase`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const res = await resp.json();
+    if (res.success) {
+      purchasedComboIds[index] = res.record.id;
+      updatePurchaseButton(index, true);
+      updatePurchaseBadge();
+      showToast('已标记为购买', 'success');
+    } else {
+      showToast(res.error || '保存失败', 'error');
+      if (btn) { btn.textContent = '已购买'; btn.disabled = false; }
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('保存失败，请重试', 'error');
+    if (btn) { btn.textContent = '已购买'; btn.disabled = false; }
+  }
+}
+
+function updatePurchaseButton(index, purchased) {
+  const btn = document.querySelector(`#combo-${index} .btn-purchase`);
+  if (!btn) return;
+  btn.disabled = false;
+  if (purchased) {
+    btn.textContent = '取消已购买';
+    btn.classList.remove('btn-success');
+    btn.classList.add('btn-danger');
+  } else {
+    btn.textContent = '已购买';
+    btn.classList.remove('btn-danger');
+    btn.classList.add('btn-success');
+  }
+}
+
+async function toggleManualForm() {
+  const form = document.getElementById('manualAddForm');
+  const title = document.getElementById('manualFormToggle');
+  if (form.style.display === 'none') {
+    form.style.display = 'block';
+    title.textContent = '- 手动录入已购号码';
+    updateManualInputHints();
+    await updateManualIssueHint();
+  } else {
+    form.style.display = 'none';
+    title.textContent = '+ 手动录入已购号码';
+  }
+}
+
+function updateManualInputHints() {
+  const type = document.getElementById('manualLotteryType').value;
+  const isSSQ = type === 'ssq';
+  document.getElementById('manualRedLabel').textContent = isSSQ ? '红球:' : '前区:';
+  document.getElementById('manualBlueLabel').textContent = isSSQ ? '蓝球:' : '后区:';
+  document.getElementById('manualRed').placeholder = isSSQ ? '01,02,03,04,05,06' : '01,02,03,04,05';
+  document.getElementById('manualBlue').placeholder = isSSQ ? '07' : '01,02';
+  updateManualIssueHint();
+}
+
+async function updateManualIssueHint() {
+  const type = document.getElementById('manualLotteryType').value;
+  if (!suggestedIssues[type]) {
+    try {
+      const info = await fetchJSON(`${API}/latest-issue/${type}`);
+      suggestedIssues[type] = info.suggested_issue;
+    } catch(e) {}
+  }
+  const issueInput = document.getElementById('manualIssue');
+  const fallback = type === 'ssq' ? '26078' : '26076';
+  const suggested = suggestedIssues[type] || fallback;
+  issueInput.placeholder = suggested;
+  if (!issueInput.value.trim()) {
+    issueInput.value = suggested;
+  }
+}
+
+function parseNumbers(str, count) {
+  const nums = str.split(/[,，\.。\s]+/).filter(s => s.trim()).map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+  return nums.slice(0, count);
+}
+
+async function manualAddPurchase() {
+  const lotteryType = document.getElementById('manualLotteryType').value;
+  const issue = document.getElementById('manualIssue').value.trim();
+  const redInput = document.getElementById('manualRed').value.trim();
+  const blueInput = document.getElementById('manualBlue').value.trim();
+
+  if (!issue) {
+    showToast('请填写期号', 'error');
+    return;
+  }
+  if (!redInput || !blueInput) {
+    showToast('请填写完整号码', 'error');
+    return;
+  }
+
+  const isSSQ = lotteryType === 'ssq';
+  const redCount = isSSQ ? 6 : 5;
+  const blueCount = isSSQ ? 1 : 2;
+
+  const red = parseNumbers(redInput, redCount);
+  const blue = parseNumbers(blueInput, blueCount);
+
+  if (red.length !== redCount) {
+    showToast(`${isSSQ ? '红球' : '前区'}需要 ${redCount} 个号码，当前 ${red.length} 个`, 'error');
+    return;
+  }
+  if (blue.length !== blueCount) {
+    showToast(`${isSSQ ? '蓝球' : '后区'}需要 ${blueCount} 个号码，当前 ${blue.length} 个`, 'error');
+    return;
+  }
+
+  // 去重检查
+  if (new Set(red).size !== red.length) {
+    showToast(`${isSSQ ? '红球' : '前区'}号码有重复`, 'error');
+    return;
+  }
+  if (new Set(blue).size !== blue.length) {
+    showToast(`${isSSQ ? '蓝球' : '后区'}号码有重复`, 'error');
+    return;
+  }
+
+  const payload = {
+    lottery_type: lotteryType,
+    issue: issue,
+    red: red,
+    blue: blue,
+    strategy: 'manual',
+    source: 'manual',
+    cost: 2.0,
+  };
+
+  try {
+    const resp = await fetch(`${API}/purchase`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const res = await resp.json();
+    if (res.success) {
+      showToast('录入成功', 'success');
+      document.getElementById('manualRed').value = '';
+      document.getElementById('manualBlue').value = '';
+      loadPurchases();
+      updatePurchaseBadge();
+    } else {
+      showToast(res.error || '录入失败', 'error');
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('录入失败，请重试', 'error');
+  }
+}
+
+async function updatePurchaseBadge() {
+  try {
+    const res = await fetchJSON(`${API}/purchases`);
+    const pending = res.purchases.filter(p => p.status === 'pending').length;
+    const badge = document.getElementById('purchaseTabBadge');
+    badge.textContent = pending;
+    badge.style.display = pending > 0 ? 'inline-block' : 'none';
+  } catch(e) {}
+}
+
+async function loadPurchases() {
+  const type = document.getElementById('purchaseFilterType').value;
+  const status = document.getElementById('purchaseFilterStatus').value;
+  let url = `${API}/purchases`;
+  const params = [];
+  if (type) params.push(`lottery_type=${type}`);
+  if (status) params.push(`status=${status}`);
+  if (params.length) url += '?' + params.join('&');
+
+  document.getElementById('purchaseList').innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
+
+  // 加载开奖时间提示
+  loadPurchaseDrawHint();
+
+  try {
+    const res = await fetchJSON(url);
+    renderPurchaseSummary(res.summary);
+    renderPurchaseList(res.purchases);
+    updatePurchaseBadge();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('purchaseList').innerHTML = '<div class="loading"><p>加载失败</p></div>';
+  }
+}
+
+async function loadPurchaseDrawHint() {
+  try {
+    const ssqInfo = await fetchJSON(`${API}/latest-issue/ssq`);
+    const dltInfo = await fetchJSON(`${API}/latest-issue/dlt`);
+    let html = '';
+    if (ssqInfo.draw_schedule) {
+      const nextStr = ssqInfo.next_draw_time ? `下次: ${ssqInfo.next_draw_time}` : '';
+      html += `<span style="color:var(--orange);font-size:12px;margin-right:16px">🔴 双色球: ${ssqInfo.draw_schedule.days} ${ssqInfo.draw_schedule.time} | 最新${ssqInfo.latest_issue}期 | ${nextStr}</span>`;
+    }
+    if (dltInfo.draw_schedule) {
+      const nextStr = dltInfo.next_draw_time ? `下次: ${dltInfo.next_draw_time}` : '';
+      html += `<span style="color:var(--blue);font-size:12px">🔵 大乐透: ${dltInfo.draw_schedule.days} ${dltInfo.draw_schedule.time} | 最新${dltInfo.latest_issue}期 | ${nextStr}</span>`;
+    }
+    document.getElementById('purchaseDrawHint').innerHTML = html;
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function renderPurchaseSummary(summary) {
+  const profitClass = summary.profit >= 0 ? 'win' : 'loss';
+  const html = `
+    <div class="stat-box"><div class="label">总投入</div><div class="value">¥${summary.total_cost}</div><div class="sub">${summary.total_count} 注</div></div>
+    <div class="stat-box"><div class="label">总中奖</div><div class="value ${summary.total_win > 0 ? 'win' : ''}">¥${summary.total_win}</div><div class="sub">${summary.win_count} 次</div></div>
+    <div class="stat-box"><div class="label">盈亏</div><div class="value ${profitClass}">¥${summary.profit}</div><div class="sub">${summary.checked_count} 注已开奖</div></div>
+    <div class="stat-box"><div class="label">待开奖</div><div class="value">${summary.pending_count}</div><div class="sub">注</div></div>
+  `;
+  document.getElementById('purchaseSummary').innerHTML = html;
+}
+
+function renderPurchaseList(purchases) {
+  if (purchases.length === 0) {
+    document.getElementById('purchaseList').innerHTML = '<div class="empty-state">暂无购买记录，去智能选号页面生成并保存号码</div>';
+    return;
+  }
+
+  const stratLabels = {hot:'热号追势',cold:'冷号回补',missing:'遗漏回补',balanced:'均衡组合',smart:'智能评分'};
+  let html = '';
+  purchases.forEach(p => {
+    const isSSQ = p.lottery_type === 'ssq';
+    const redLabel = isSSQ ? '红球' : '前区';
+    const blueLabel = isSSQ ? '蓝球' : '后区';
+    const statusClass = p.status === 'pending' ? 'pending status-pending' : (p.win ? 'win status-win' : 'loss status-loss');
+    const statusText = p.status === 'pending' ? '待开奖' : (p.win ? `中奖 ${p.prize.name}` : '未中奖');
+    const cardClass = p.status === 'pending' ? 'pending' : (p.win ? 'win' : 'loss');
+
+    let resultHtml = '';
+    if (p.status === 'checked' && p.prize) {
+      const amountColor = p.win ? 'var(--green)' : 'var(--text-dim)';
+      resultHtml = `
+        <div class="purchase-result">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span><b>开奖号码</b>: ${p.drawn_red.map(n=>`<span class="ball ball-red ball-xs">${n}</span>`).join('')} ${p.drawn_blue.map(n=>`<span class="ball ball-blue ball-xs">${n}</span>`).join('')}</span>
+            <span style="color:${amountColor};font-weight:700">奖金 ¥${p.prize.amount}${p.prize.fixed ? '' : '(估算)'}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-dim)">命中 ${p.match.red}红${isSSQ ? '' : ' '}${p.match.blue}后 | ${p.prize.name} | 对比时间 ${p.check_time}</div>
+        </div>
+      `;
+    }
+
+    html += `
+      <div class="purchase-card ${cardClass}">
+        <div class="purchase-header">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-weight:700">${p.lottery_name}</span>
+            <span class="purchase-status ${statusClass}">${statusText}</span>
+            <span class="purchase-strategy" style="font-size:12px;color:var(--text-dim)">${stratLabels[p.strategy] || p.strategy || '未标注'}</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            ${p.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="checkPurchase('${p.id}', this)">开奖对比</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">删除</button>
+          </div>
+        </div>
+        <div class="purchase-info">
+          <span>期号: <b>${p.issue}</b></span>
+          <span>购买时间: ${p.create_time}</span>
+          <span>投入: ¥${p.cost}</span>
+        </div>
+        <div class="combo-balls" style="margin-top:8px">
+          <span style="color:var(--text-dim);font-size:12px;margin-right:4px">${redLabel}:</span>
+          ${p.red.map(n => `<span class="ball ball-red">${n}</span>`).join('')}
+          <span style="color:var(--text-dim);font-size:12px;margin:0 4px 0 8px">${blueLabel}:</span>
+          ${p.blue.map(n => `<span class="ball ball-blue">${n}</span>`).join('')}
+        </div>
+        ${resultHtml}
+      </div>
+    `;
+  });
+  document.getElementById('purchaseList').innerHTML = html;
+}
+
+async function deletePurchase(id) {
+  const ok = await customConfirm('确定删除这条购买记录?');
+  if (!ok) return;
+  try {
+    const resp = await fetch(`${API}/purchase/${id}`, {
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
+    });
+    const res = await resp.json();
+    if (res.success) {
+      showToast('删除成功', 'success');
+      loadPurchases();
+      updatePurchaseBadge();
+    } else {
+      showToast('删除失败: ' + (res.error || '未知错误'), 'error');
+    }
+  } catch(e) {
+    console.error('删除失败:', e);
+    showToast('删除失败，请重试', 'error');
+  }
+}
+
+async function checkPurchase(id, btn) {
+  btn.textContent = '对比中...';
+  btn.disabled = true;
+  try {
+    const resp = await fetch(`${API}/check/${id}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({}),
+    });
+    const res = await resp.json();
+    if (res.not_drawn) {
+      const msg = res.record && res.record.draw_message ? res.record.draw_message : '未开奖';
+      showToast(msg, 'info');
+      btn.textContent = '开奖对比';
+      btn.disabled = false;
+    } else if (res.success) {
+      const record = res.record;
+      if (record.win) {
+        showToast(`恭喜! ${record.prize.name} 奖金 ¥${record.prize.amount}`, 'success');
+      } else {
+        showToast('已开奖，未中奖', 'info');
+      }
+      loadPurchases();
+    } else {
+      showToast(res.error || '对比失败', 'error');
+      btn.textContent = '开奖对比';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('对比失败，请重试', 'error');
+    btn.textContent = '开奖对比';
+    btn.disabled = false;
+  }
+}
+
+async function checkAllPurchases(btn) {
+  btn.textContent = '对比中...';
+  btn.disabled = true;
+  try {
+    const resp = await fetch(`${API}/check-all`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({}),
+    });
+    const res = await resp.json();
+    let msg = `已对比 ${res.drawn_count} 条记录`;
+    if (res.not_drawn_count > 0) {
+      msg += `，${res.not_drawn_count} 条未开奖`;
+    }
+    showToast(msg, 'info');
+    loadPurchases();
+  } catch(e) {
+    console.error(e);
+    showToast('对比失败，请重试', 'error');
+  } finally {
+    btn.textContent = '批量开奖对比';
+    btn.disabled = false;
+  }
+}
+
+async function loadSuggestions() {
+  const type = document.getElementById('purchaseFilterType').value;
+  const box = document.getElementById('suggestionsBox');
+  box.innerHTML = '<div class="loading"><div class="spinner"></div><p>生成建议中...</p></div>';
+  try {
+    const url = type ? `${API}/suggestions?lottery_type=${type}` : `${API}/suggestions`;
+    const res = await fetchJSON(url);
+    let html = '<div class="card" style="margin-bottom:16px"><div class="card-title">改进建议 <span class="badge">基于历史购买记录</span></div>';
+    html += `<div style="margin-bottom:12px;font-size:13px;color:var(--text-dim)">已开奖 ${res.stats.total_checked} 注 | 中奖 ${res.stats.win_count} 注 | 胜率 ${res.stats.win_rate}%</div>`;
+    html += '<ul style="padding-left:18px;font-size:13px;line-height:1.8">';
+    res.suggestions.forEach(s => {
+      html += `<li style="margin-bottom:6px">${s}</li>`;
+    });
+    html += '</ul></div>';
+    box.innerHTML = html;
+  } catch(e) {
+    console.error(e);
+    box.innerHTML = '';
+  }
+}
+
+// ========== Custom Modal & Toast (替代 confirm/alert，嵌入式浏览器兼容) ==========
+function customConfirm(message) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('confirmOverlay');
+    document.getElementById('confirmMessage').textContent = message;
+    overlay.style.display = 'flex';
+    const yesBtn = document.getElementById('confirmYes');
+    const noBtn = document.getElementById('confirmNo');
+    const cleanup = () => {
+      overlay.style.display = 'none';
+      yesBtn.removeEventListener('click', onYes);
+      noBtn.removeEventListener('click', onNo);
+    };
+    const onYes = () => { cleanup(); resolve(true); };
+    const onNo = () => { cleanup(); resolve(false); };
+    yesBtn.addEventListener('click', onYes);
+    noBtn.addEventListener('click', onNo);
+  });
+}
+function showToast(msg, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => { toast.className = 'toast'; }, 3000);
+}
+
+// Init
+loadData();
+updatePurchaseBadge();
+updateSuggestedIssue();
+</script>
+
+<!-- Custom Confirm Modal -->
+<div id="confirmOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;min-width:320px;max-width:90%">
+    <div id="confirmMessage" style="font-size:15px;margin-bottom:20px;color:var(--text)"></div>
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button id="confirmNo" style="padding:8px 20px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:14px">取消</button>
+      <button id="confirmYes" style="padding:8px 20px;border-radius:6px;border:none;background:var(--red);color:#fff;cursor:pointer;font-size:14px;font-weight:600">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;z-index:9998;opacity:0;transition:opacity 0.3s;pointer-events:none"></div>
+
+<style>
+.toast.show { opacity:1; }
+.toast.info { background:var(--accent); color:#fff; }
+.toast.error { background:var(--red); color:#fff; }
+.toast.success { background:var(--green); color:#fff; }
+</style>
+</body>
+</html>
