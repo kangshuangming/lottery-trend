@@ -879,9 +879,7 @@ async function updateManualIssueHint() {
   const fallback = type === 'ssq' ? '26078' : '26076';
   const suggested = suggestedIssues[type] || fallback;
   issueInput.placeholder = suggested;
-  if (!issueInput.value.trim()) {
-    issueInput.value = suggested;
-  }
+  issueInput.value = suggested;
 }
 
 function parseNumbers(str, count) {
