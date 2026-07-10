@@ -869,15 +869,13 @@ function updateManualInputHints() {
 
 async function updateManualIssueHint() {
   const type = document.getElementById('manualLotteryType').value;
-  if (!suggestedIssues[type]) {
-    try {
-      const info = await fetchJSON(`${API}/latest-issue/${type}`);
-      suggestedIssues[type] = info.suggested_issue;
-    } catch(e) {}
-  }
+  // 每次切换都重新从API获取最新期号，避免使用过期缓存
+  try {
+    const info = await fetchJSON(`${API}/latest-issue/${type}`);
+    suggestedIssues[type] = info.suggested_issue;
+  } catch(e) {}
   const issueInput = document.getElementById('manualIssue');
-  const fallback = type === 'ssq' ? '26078' : '26076';
-  const suggested = suggestedIssues[type] || fallback;
+  const suggested = suggestedIssues[type] || (type === 'ssq' ? '26079' : '26077');
   issueInput.placeholder = suggested;
   issueInput.value = suggested;
 }
