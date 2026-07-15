@@ -135,6 +135,29 @@ def api_update_purchase(purchase_id):
     return jsonify({"success": True, "record": record})
 
 
+@app.route("/api/purchases/issue", methods=["POST"])
+def api_update_purchases_issue():
+    """批量修改购买记录的期号，并重置对比状态"""
+    data = request.get_json(silent=True) or {}
+    ids = data.get("ids", [])
+    new_issue = data.get("issue")
+    if not ids or not new_issue:
+        return jsonify({"error": "缺少参数: ids 或 issue"}), 400
+    updated = []
+    not_found = []
+    for pid in ids:
+        record = update_purchase_issue(pid, new_issue)
+        if record is None:
+            not_found.append(pid)
+        else:
+            updated.append(record)
+    return jsonify({
+        "success": True,
+        "updated_count": len(updated),
+        "not_found": not_found,
+    })
+
+
 @app.route("/api/check/<purchase_id>", methods=["POST"])
 def api_check_purchase(purchase_id):
     """检查单条购买记录是否中奖"""
