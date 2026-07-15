@@ -10,6 +10,7 @@ from analyzer import full_analysis, LOTTERY_CONFIG
 from selector import generate_combinations
 from purchase import (
     add_purchase, add_purchase_batch, get_purchases, delete_purchase,
+    update_purchase_issue,
     check_purchase, check_all_purchases, get_win_summary, generate_improvement_suggestions,
     check_draw_status, get_draw_schedule, get_next_draw_time
 )
@@ -119,6 +120,19 @@ def api_delete_purchase(purchase_id):
     """删除购买记录"""
     delete_purchase(purchase_id)
     return jsonify({"success": True})
+
+
+@app.route("/api/purchase/<purchase_id>", methods=["PATCH"])
+def api_update_purchase(purchase_id):
+    """修改购买记录的期号，并重置对比状态"""
+    data = request.get_json(silent=True) or {}
+    new_issue = data.get("issue")
+    if not new_issue:
+        return jsonify({"error": "缺少参数: issue"}), 400
+    record = update_purchase_issue(purchase_id, new_issue)
+    if record is None:
+        return jsonify({"error": "记录不存在"}), 404
+    return jsonify({"success": True, "record": record})
 
 
 @app.route("/api/check/<purchase_id>", methods=["POST"])

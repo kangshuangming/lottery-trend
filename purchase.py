@@ -208,6 +208,29 @@ def delete_purchase(purchase_id):
     return True
 
 
+def update_purchase_issue(purchase_id, new_issue):
+    """修改购买记录的期号，并重置对比状态。
+
+    期号变更后，旧的对比结果（中奖/未中奖）已失效，统一重置为 pending，
+    待用户重新「开奖对比」时按新期号判断。
+    """
+    purchases = load_purchases()
+    for p in purchases:
+        if p["id"] == purchase_id:
+            p["issue"] = str(new_issue)
+            # 重置对比相关字段
+            p["status"] = "pending"
+            p["check_time"] = None
+            p["win"] = None
+            p["match"] = None
+            p["prize"] = None
+            p["drawn_red"] = None
+            p["drawn_blue"] = None
+            save_purchases(purchases)
+            return p
+    return None
+
+
 def get_purchases(lottery_type=None, status=None, issue=None):
     """获取购买记录,支持筛选"""
     purchases = load_purchases()

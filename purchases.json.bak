@@ -1,0 +1,942 @@
+[
+  {
+    "id": "e7d47a81-153",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26078",
+    "red": [
+      1,
+      3,
+      24,
+      25,
+      28,
+      30
+    ],
+    "blue": [
+      2
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-08 14:08:18",
+    "check_time": "2026-07-10 10:55:20",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      7,
+      11,
+      14,
+      16,
+      27,
+      28
+    ],
+    "drawn_blue": [
+      6
+    ]
+  },
+  {
+    "id": "d58faa25-823",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26078",
+    "red": [
+      3,
+      5,
+      22,
+      26,
+      28,
+      31
+    ],
+    "blue": [
+      6
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-08 14:08:29",
+    "check_time": "2026-07-10 10:55:20",
+    "win": true,
+    "match": {
+      "red": 1,
+      "blue": 1
+    },
+    "prize": {
+      "name": "六等奖",
+      "amount": 5,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 5
+    },
+    "drawn_red": [
+      7,
+      11,
+      14,
+      16,
+      27,
+      28
+    ],
+    "drawn_blue": [
+      6
+    ]
+  },
+  {
+    "id": "c0cc13db-05f",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26078",
+    "red": [
+      7,
+      9,
+      11,
+      22,
+      24,
+      27
+    ],
+    "blue": [
+      6
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-08 14:08:46",
+    "check_time": "2026-07-10 10:55:20",
+    "win": true,
+    "match": {
+      "red": 3,
+      "blue": 1
+    },
+    "prize": {
+      "name": "五等奖",
+      "amount": 10,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 10
+    },
+    "drawn_red": [
+      7,
+      11,
+      14,
+      16,
+      27,
+      28
+    ],
+    "drawn_blue": [
+      6
+    ]
+  },
+  {
+    "id": "75aface4-0d5",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26078",
+    "red": [
+      6,
+      11,
+      22,
+      27,
+      29,
+      33
+    ],
+    "blue": [
+      14
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-08 14:09:16",
+    "check_time": "2026-07-10 10:55:20",
+    "win": false,
+    "match": {
+      "red": 2,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      7,
+      11,
+      14,
+      16,
+      27,
+      28
+    ],
+    "drawn_blue": [
+      6
+    ]
+  },
+  {
+    "id": "f5ba1b7f-d2e",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26078",
+    "red": [
+      6,
+      11,
+      22,
+      27,
+      29,
+      31
+    ],
+    "blue": [
+      14
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-08 14:09:28",
+    "check_time": "2026-07-10 10:55:20",
+    "win": false,
+    "match": {
+      "red": 2,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      7,
+      11,
+      14,
+      16,
+      27,
+      28
+    ],
+    "drawn_blue": [
+      6
+    ]
+  },
+  {
+    "id": "109551dc-f27",
+    "lottery_type": "dlt",
+    "lottery_name": "大乐透",
+    "issue": "26076",
+    "red": [
+      12,
+      13,
+      21,
+      22,
+      26
+    ],
+    "blue": [
+      1,
+      8
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:02:31",
+    "check_time": "2026-07-10 11:02:34",
+    "win": false,
+    "match": {
+      "red": 0,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      15,
+      20,
+      27,
+      28,
+      35
+    ],
+    "drawn_blue": [
+      2,
+      11
+    ]
+  },
+  {
+    "id": "ca4e087d-776",
+    "lottery_type": "dlt",
+    "lottery_name": "大乐透",
+    "issue": "26076",
+    "red": [
+      3,
+      5,
+      15,
+      25,
+      33
+    ],
+    "blue": [
+      5,
+      8
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:02:46",
+    "check_time": "2026-07-10 11:03:14",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      15,
+      20,
+      27,
+      28,
+      35
+    ],
+    "drawn_blue": [
+      2,
+      11
+    ]
+  },
+  {
+    "id": "57a63732-8ee",
+    "lottery_type": "dlt",
+    "lottery_name": "大乐透",
+    "issue": "26076",
+    "red": [
+      2,
+      8,
+      9,
+      14,
+      27
+    ],
+    "blue": [
+      5,
+      8
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:02:57",
+    "check_time": "2026-07-10 11:03:14",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      15,
+      20,
+      27,
+      28,
+      35
+    ],
+    "drawn_blue": [
+      2,
+      11
+    ]
+  },
+  {
+    "id": "34230116-1d0",
+    "lottery_type": "dlt",
+    "lottery_name": "大乐透",
+    "issue": "26076",
+    "red": [
+      2,
+      7,
+      9,
+      12,
+      34
+    ],
+    "blue": [
+      5,
+      8
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:03:06",
+    "check_time": "2026-07-10 11:03:14",
+    "win": false,
+    "match": {
+      "red": 0,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      15,
+      20,
+      27,
+      28,
+      35
+    ],
+    "drawn_blue": [
+      2,
+      11
+    ]
+  },
+  {
+    "id": "bb95fee1-d84",
+    "lottery_type": "dlt",
+    "lottery_name": "大乐透",
+    "issue": "26076",
+    "red": [
+      1,
+      3,
+      4,
+      8,
+      12
+    ],
+    "blue": [
+      5,
+      8
+    ],
+    "strategy": "manual",
+    "source": "manual",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:03:13",
+    "check_time": "2026-07-10 11:03:14",
+    "win": false,
+    "match": {
+      "red": 0,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      15,
+      20,
+      27,
+      28,
+      35
+    ],
+    "drawn_blue": [
+      2,
+      11
+    ]
+  },
+  {
+    "id": "665ad613-e63",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      1,
+      2,
+      22,
+      29,
+      30,
+      33
+    ],
+    "blue": [
+      4
+    ],
+    "strategy": "hot",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:13:10",
+    "check_time": "2026-07-15 10:15:26",
+    "win": true,
+    "match": {
+      "red": 3,
+      "blue": 1
+    },
+    "prize": {
+      "name": "五等奖",
+      "amount": 10,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 10
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "fd2f1c06-4d1",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      6,
+      13,
+      17,
+      22,
+      29,
+      33
+    ],
+    "blue": [
+      10
+    ],
+    "strategy": "cold",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:13:10",
+    "check_time": "2026-07-15 10:15:26",
+    "win": false,
+    "match": {
+      "red": 3,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "10d3f651-e6c",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      2,
+      6,
+      13,
+      15,
+      22,
+      31
+    ],
+    "blue": [
+      10
+    ],
+    "strategy": "missing",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:13:11",
+    "check_time": "2026-07-15 10:15:26",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "68d6c9db-0ca",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      5,
+      14,
+      17,
+      20,
+      30,
+      31
+    ],
+    "blue": [
+      14
+    ],
+    "strategy": "balanced",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:13:12",
+    "check_time": "2026-07-15 10:15:26",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "c4c95bc3-03f",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      3,
+      9,
+      22,
+      24,
+      29,
+      33
+    ],
+    "blue": [
+      14
+    ],
+    "strategy": "smart",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-10 11:13:13",
+    "check_time": "2026-07-15 10:15:26",
+    "win": false,
+    "match": {
+      "red": 3,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "fd9cea77-f1b",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      2,
+      14,
+      18,
+      24,
+      30,
+      33
+    ],
+    "blue": [
+      5
+    ],
+    "strategy": "hot",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-15 12:16:40",
+    "check_time": "2026-07-15 23:06:02",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "24de6036-8d8",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      2,
+      3,
+      14,
+      22,
+      25,
+      29
+    ],
+    "blue": [
+      2
+    ],
+    "strategy": "hot",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-15 12:16:41",
+    "check_time": "2026-07-15 23:06:02",
+    "win": false,
+    "match": {
+      "red": 2,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "86304c71-968",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      3,
+      18,
+      25,
+      29,
+      30,
+      33
+    ],
+    "blue": [
+      2
+    ],
+    "strategy": "hot",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-15 12:16:42",
+    "check_time": "2026-07-15 23:06:02",
+    "win": false,
+    "match": {
+      "red": 1,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "1e88bc7a-349",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      1,
+      18,
+      22,
+      24,
+      29,
+      30
+    ],
+    "blue": [
+      5
+    ],
+    "strategy": "hot",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-15 12:16:43",
+    "check_time": "2026-07-15 23:06:02",
+    "win": true,
+    "match": {
+      "red": 4,
+      "blue": 0
+    },
+    "prize": {
+      "name": "五等奖",
+      "amount": 10,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 10
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  },
+  {
+    "id": "9fff908b-4ee",
+    "lottery_type": "ssq",
+    "lottery_name": "双色球",
+    "issue": "26079",
+    "red": [
+      1,
+      14,
+      22,
+      28,
+      30,
+      33
+    ],
+    "blue": [
+      1
+    ],
+    "strategy": "hot",
+    "source": "selector",
+    "cost": 2.0,
+    "note": "",
+    "status": "checked",
+    "create_time": "2026-07-15 12:16:44",
+    "check_time": "2026-07-15 23:06:02",
+    "win": false,
+    "match": {
+      "red": 2,
+      "blue": 0
+    },
+    "prize": {
+      "name": "未中奖",
+      "amount": 0,
+      "amount_type": "固定",
+      "fixed": true,
+      "estimate": 0
+    },
+    "drawn_red": [
+      1,
+      11,
+      17,
+      22,
+      24,
+      29
+    ],
+    "drawn_blue": [
+      4
+    ]
+  }
+]
