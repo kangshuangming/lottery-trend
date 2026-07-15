@@ -17,18 +17,13 @@ import os
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
-CACHE = {"ssq": None, "dlt": None}
-
 
 def get_data(lottery_type, refresh=False, limit=500):
+    """从 scraper 获取数据，scraper 内部已管理文件缓存，避免 Flask 内存缓存与文件不同步。"""
     if lottery_type == "ssq":
-        if CACHE["ssq"] is None or refresh:
-            CACHE["ssq"] = get_ssq_data(force_refresh=refresh, limit=limit)
-        return CACHE["ssq"]
+        return get_ssq_data(force_refresh=refresh, limit=limit)
     else:
-        if CACHE["dlt"] is None or refresh:
-            CACHE["dlt"] = get_dlt_data(force_refresh=refresh, limit=limit)
-        return CACHE["dlt"]
+        return get_dlt_data(force_refresh=refresh, limit=limit)
 
 
 @app.route("/")
