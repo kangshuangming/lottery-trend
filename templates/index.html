@@ -1248,13 +1248,10 @@ async function saveEditIssue() {
     showToast('修改失败，请重试', 'error');
   }
 }
-document.getElementById('editIssueSave').addEventListener('click', saveEditIssue);
-document.getElementById('editIssueCancel').addEventListener('click', () => {
+// 采用 onclick 内联绑定（避免元素未就绪导致 addEventListener 失败）
+function closeEditIssueModal() {
   document.getElementById('editIssueOverlay').style.display = 'none';
-});
-document.getElementById('editIssueInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') saveEditIssue();
-});
+}
 
 // Init
 loadData();
@@ -1281,10 +1278,10 @@ updateSuggestedIssue();
   <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;min-width:320px;max-width:90%">
     <div style="font-size:15px;margin-bottom:8px;color:var(--text);font-weight:600">修改购买期号</div>
     <div id="editIssueHint" style="font-size:12px;margin-bottom:12px;color:var(--text-dim)"></div>
-    <input id="editIssueInput" type="text" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;box-sizing:border-box" placeholder="如 26081">
+    <input id="editIssueInput" type="text" style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;box-sizing:border-box" placeholder="如 26081" onkeydown="if(event.key==='Enter')saveEditIssue()">
     <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">
-      <button id="editIssueCancel" style="padding:8px 20px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:14px">取消</button>
-      <button id="editIssueSave" style="padding:8px 20px;border-radius:6px;border:none;background:var(--blue);color:#fff;cursor:pointer;font-size:14px;font-weight:600">保存</button>
+      <button id="editIssueCancel" onclick="closeEditIssueModal()" style="padding:8px 20px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:14px">取消</button>
+      <button id="editIssueSave" onclick="saveEditIssue()" style="padding:8px 20px;border-radius:6px;border:none;background:var(--blue);color:#fff;cursor:pointer;font-size:14px;font-weight:600">保存</button>
     </div>
   </div>
 </div>
